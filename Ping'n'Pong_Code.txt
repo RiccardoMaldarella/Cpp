@@ -1,0 +1,762 @@
+#include <iostream>
+#include <string>
+#include <string.h>
+#include <stdlib.h>
+#include <Windows.h>
+#include <gdiplus.h>
+#include <gdiplusenums.h>
+#include <gdipluspen.h>
+#include <MMSystem.h>
+#include "resource.h"
+using namespace std;
+// Chiamata della Classe e creazione dell'Oggetto:
+WNDCLASSEX W_C;
+// Dichiarazioni di Variabili tipo [GENERICHE]:
+HWND Manipolatore_Finestra;
+Gdiplus::GdiplusStartupInput GDI_PingPong;
+ULONG_PTR GDI_PingPongSpinner;
+HDC Disegnato;
+PAINTSTRUCT Disegnante;
+HMENU PingPong_MENU;
+HMENU PingPong_LINGUASOTTOMENU;
+HMENU PingPong_GIOCOSOTTOMENU;
+UINT Controllo_Check_ITA = MF_UNCHECKED;
+UINT Controllo_Check_ENG = MF_UNCHECKED;
+UINT Controllo_Check_ESP = MF_UNCHECKED;
+Gdiplus::Graphics Grafica_Colore_BCG(Disegnato);
+// Dichiarazioni di Variabili tipo [VETTORI]:
+string Lingua[20];
+// Dichiarazioni di Variabili tipo [INT]:
+int Domanda_1; 
+int R = 0;
+int G = 255;
+int B = 0;
+// Giocatore_1 Colori:
+int Colore_R_Giocatore_1 = 255;
+int Colore_G_Giocatore_1 = 255;
+int Colore_B_Giocatore_1 = 255;
+// Giocatore_2 Colori:
+int Colore_R_Giocatore_2 = 255;
+int Colore_G_Giocatore_2 = 255;
+int Colore_B_Giocatore_2 = 255;
+// LineaCentrale Colori:
+int Colore_R_LineaCentrale = 255;
+int Colore_G_LineaCentrale = 255;
+int Colore_B_LineaCentrale = 255;
+// Sfondo Colore:
+int Colore_R_BCG = 255;
+int Colore_G_BCG = 255;
+int Colore_B_BCG = 255;
+// Dichiarazioni di Variabili tipo [ERRORE]:
+const auto CHIUSURA_GRAZIE = 4;
+const auto CHIUSURA_STD = 1;
+const auto ERRORE_CHIUSURA = 2;
+const auto ERRORE_FINESTRA = 3;
+// Dichiarazioni di Variabili tipo [COSTANTI]:
+const char *Finestra_H = "Finestra_CLS";
+const int Asse_X = 20;
+const int Asse_X_Neg = 1305;
+const int Asse_Y_Limite_Positivo = 625;
+const int Asse_Y_Limite_Negativo = 50;
+const int Asse_Y_Distruttore_Limite_Negativo = 270;
+const int Asse_Y_Distruttore_Limite_Positivo = 590;
+// Dichiarazioni di Variabili Tipo [INT_GIOCATORI]:
+int Aumentatore_GCTPPosY = 310;
+int Aumentatore_GCTSPosY = 310;
+int Aumentatore_GCTPPosY_Distruttore = 270;
+int Aumentatore_GCTPNegY_Distruttore = 520;
+int Aumentatore_GCTSPosY_Distruttore = 270;
+int Aumentatore_GCTSNegY_Distruttore = 520;
+// Dichiarazioni di Variabili Tipo [RECT_REGIONERENDERING]:
+RECT RegioneRendering;
+void Lingua_Italiana_CALLER()
+{
+	// WINDOWS MESSAGES:
+	Lingua[0] = "Non è stato possibile aprire la finestra. Riprova";
+	Lingua[1] = "Vuoi davvero uscire dal gioco?";
+	Lingua[2] = "Grazie per aver giocato!";
+	Lingua[10] = "Ping'n'Pong è un semplice gioco creato in C++ da Riccardo Maldarella. CG Artist e programmatore specializzato in animazione 3D.\n\nArtStation: https://maldarella.artstation.com/ \nE-mail: riccardomaldarella3@gmail.com\nShowReel: https://vimeo.com/451249704 \nGitHub:\n";
+	Lingua[15] = "Vuoi davvero impostare il colore nero come colore del Giocatore_1?";
+	Lingua[16] = "Vuoi davvero impostare il colore nero come colore del Giocatore_2?";
+	// MENU
+	Lingua[3] = "Gioco";
+	Lingua[4] = "Lingua";
+	Lingua[5] = "Informazioni...";
+	Lingua[6] = "Esci";
+	Lingua[7] = "Italiano";
+	Lingua[8] = "Inglese";
+	Lingua[9] = "Spagnolo";
+	Lingua[11] = "Nuova Partita";
+	Lingua[12] = "Opzioni";
+	Lingua[13] = "Comandi di gioco:\n\nGiocatore_1:\nSù: A\nGiù: D\n\nGiocatore_2:\nSù: Freccia Sinistra\nGiù: Freccia Destra\n\nCambia il colore dell'Environment:\nRosso: 1\nBlu: 2\nVerde: 3\nGiallo: 4\nArancione: 5\nBianco: 6\nNero: 7\n\nCambia il colore del Giocatore_1:\n Rosso: Q\n Blu: W\n Verde: E\n Giallo: R\n Arancione: T\n Bianco: Y\n Nero: U\n\nCambia il colore del Giocatore_2:\n Rosso: Z\n Blu: X\n Verde: C\n Giallo: V\n Arancione: B\n Bianco: N\n Nero: M\n\n Cambia il colore della linea centrale:\n Rosso: F\n Blu: G\n Verde: H\n Giallo: J\n Arancione: K\n Bianco: L\n Nero: I ";
+	Lingua[14] = "Resetta";
+	Lingua[17] = "Pulisci";
+}
+void Lingua_Inglese_CALLER()
+{
+	// WINDOWS MESSAGES:
+	Lingua[0] = "An Error has been detected, it's not possible to open the window now. Try again.";
+	Lingua[1] = "Would you like to exit from the game?";
+	Lingua[2] = "Thanks for playing!";
+	Lingua[10] = "Ping'n'Pong is a simple game created in C++ by Riccardo Maldarella. Who's a CG Artist and programmer Specialized in 3D Animation.\n\nArtStation: https://maldarella.artstation.com/ \nE-mail: riccardomaldarella3@gmail.com\nShowReel: https://vimeo.com/451249704 \nGitHub:\n";
+	Lingua[15] = "Would you really like to change the color of the Player_1 to Black?";
+	Lingua[16] = "Would you really like to change the color of the Player_2 to Black?";
+	// MENU 
+	Lingua[3] = "Game";
+	Lingua[4] = "Language";
+	Lingua[5] = "About...";
+	Lingua[6] = "Exit";
+	Lingua[7] = "Italian";
+	Lingua[8] = "English";
+	Lingua[9] = "Spanish";
+	Lingua[11] = "New Game";
+	Lingua[12] = "Options";
+	Lingua[13] = "Game Commands:\n\nPlayer_1:\nUp: A\nDown: D\n\nPlayer_2:\nUp: Left Arrow\nDown: Right Arrow\n\nChange the Environment Color:\nRed: 1\nBlue: 2\nGreen: 3\nYellow: 4\nOrange: 5\nWhite: 6\nBlack: 7\n\n Change the Player_1 color:\n Red: Q\n Blue: W\n Green: E\n Yellow: R\n Orange: T\n White: Y\n Black: U\n\n Change the Player_2 color:\n Red: Z\n Blue: X\n Green: C\n Yellow: V\n Orange: B\n White: N \n Black: M\n\n Change the Central line color:\n Red: F\n Blue: G\n Green: H\n Yellow: J\n Orange: K\n White: K\n Black: I";
+	Lingua[14] = "Reset";
+	Lingua[17] = "Clean Up";
+}
+void Lingua_Spagnola_CALLER()
+{
+	// WINDOWS MESSAGES:
+	Lingua[0] = "No se pudo abrir la ventana. Intentar otra vez";
+	Lingua[1] = "¿De verdad quieres salir del juego?";
+	Lingua[2] = "¡Gracias por jugar!";
+	Lingua[10] = "Ping'n'Pong es un juego simple creado en C ++ por Riccardo Maldarella. Artista y programador CG especializado en animación 3D.\n\nArtStation: https://maldarella.artstation.com/ \nE-mail: riccardomaldarella3@gmail.com \nShowReel: https://vimeo.com/451249704 \nGitHub: \n";
+	Lingua[15] = "¿Realmente te gustaría cambiar el color del Jugador_1 a Negro?";
+	Lingua[16] = "¿Realmente te gustaría cambiar el color del Jugador_2 a Negro?";
+	// MENU 
+	Lingua[3] = "Juego";
+	Lingua[4] = "Lengua";
+	Lingua[5] = "información...";
+	Lingua[6] = "fuera";
+	Lingua[7] = "Italiano";
+	Lingua[8] = "inglés";
+	Lingua[9] = "Español";
+	Lingua[11] = "Nuevo Partido";
+	Lingua[12] = "Opciones";
+	Lingua[13] = "Comandos del juego:\n\nJugador_1:\nHasta: A\n";
+	Lingua[14] = "Reiniciar";
+	Lingua[17] = "Limpiar";
+}
+void PingPong_MENU_FUNCTION(HWND Manipolatore_Finestra)
+{
+	DrawMenuBar(Manipolatore_Finestra);
+	PingPong_MENU = CreateMenu();
+	PingPong_LINGUASOTTOMENU = CreateMenu();
+	PingPong_GIOCOSOTTOMENU = CreateMenu();
+	//AppendMenu(PingPong_MENU, MF_STRING, 2, Lingua[3].c_str());
+	AppendMenu(PingPong_MENU, MF_POPUP, (UINT_PTR)PingPong_GIOCOSOTTOMENU, Lingua[3].c_str());
+	AppendMenu(PingPong_MENU, MF_POPUP, (UINT_PTR)PingPong_LINGUASOTTOMENU, Lingua[4].c_str());
+	AppendMenu(PingPong_MENU, MF_STRING, 1, Lingua[5].c_str());
+	AppendMenu(PingPong_MENU, MF_STRING, 7, Lingua[12].c_str());
+	AppendMenu(PingPong_MENU, MF_STRING, 0, Lingua[6].c_str());
+	// Sotto menu Lingua:
+	AppendMenu(PingPong_LINGUASOTTOMENU, Controllo_Check_ITA, 3, Lingua[7].c_str());
+	AppendMenu(PingPong_LINGUASOTTOMENU, Controllo_Check_ENG, 4, Lingua[8].c_str());
+	AppendMenu(PingPong_LINGUASOTTOMENU, Controllo_Check_ESP, 5, Lingua[9].c_str());
+	// Sotto Menu Gioco:
+	AppendMenu(PingPong_GIOCOSOTTOMENU, MF_STRING, 6, Lingua[11].c_str());
+	AppendMenu(PingPong_GIOCOSOTTOMENU, MF_STRING, 8, Lingua[14].c_str());
+	AppendMenu(PingPong_GIOCOSOTTOMENU, MF_STRING, 9, Lingua[17].c_str());
+	SetMenu(Manipolatore_Finestra, PingPong_MENU);
+}
+void RegioneRendering_CALLER()
+{
+	RegioneRendering.left = 20;
+	RegioneRendering.right = 1400;
+	RegioneRendering.top = 20;
+	RegioneRendering.bottom = 1000;
+}
+void DisegnaPallina(HDC Disegnato)
+{
+
+}
+void DisegnaGiocatore_2_PositiveY(HDC Disegnato)
+{
+	Gdiplus::Graphics Grafica_GCTS(Disegnato);
+	Gdiplus::SolidBrush Pennello_GCTS(Gdiplus::Color(255, Colore_R_Giocatore_2, Colore_G_Giocatore_2, Colore_B_Giocatore_2));
+	Grafica_GCTS.FillRectangle(&Pennello_GCTS, Asse_X_Neg, Aumentatore_GCTSPosY = Aumentatore_GCTSPosY + 20, 10, 190);
+	Gdiplus::SolidBrush Pennello_GCTS_Pos_Distruttore(Gdiplus::Color(255, 0, 0, 0));
+	Grafica_GCTS.FillRectangle(&Pennello_GCTS_Pos_Distruttore, Asse_X_Neg, Aumentatore_GCTSPosY_Distruttore = Aumentatore_GCTSPosY_Distruttore + 20, 10, 20);
+	Aumentatore_GCTSNegY_Distruttore = Aumentatore_GCTSNegY_Distruttore + 20;
+}
+void DisegnaGiocatore_2_NegativeY(HDC Disegnato)
+{
+	Gdiplus::Graphics Grafica_GCTS(Disegnato);
+	Gdiplus::SolidBrush Pennello_GCTS(Gdiplus::Color(255, Colore_R_Giocatore_2, Colore_G_Giocatore_2, Colore_B_Giocatore_2));
+	Grafica_GCTS.FillRectangle(&Pennello_GCTS, Asse_X_Neg, Aumentatore_GCTSPosY = Aumentatore_GCTSPosY - 20, 10, 190);
+	Gdiplus::SolidBrush Pennello_GCTS_Neg_Distruttore(Gdiplus::Color(255, 0, 0, 0));
+	Grafica_GCTS.FillRectangle(&Pennello_GCTS_Neg_Distruttore, Asse_X_Neg, Aumentatore_GCTSNegY_Distruttore = Aumentatore_GCTSNegY_Distruttore - 20, 10, 20);
+	Aumentatore_GCTSPosY_Distruttore = Aumentatore_GCTSPosY_Distruttore - 20;
+}
+void DisegnaGiocatore_1_PositiveY(HDC Disegnato)
+{
+	Gdiplus::Graphics Grafica_GCTP(Disegnato);
+	Gdiplus::SolidBrush Pennello_GCTP(Gdiplus::Color(255, Colore_R_Giocatore_1, Colore_G_Giocatore_1, Colore_B_Giocatore_1));
+	Grafica_GCTP.FillRectangle(&Pennello_GCTP, Asse_X, Aumentatore_GCTPPosY = Aumentatore_GCTPPosY + 20, 10, 190);
+	Gdiplus::SolidBrush Pennello_GCTP_Pos_Distruttore(Gdiplus::Color(255, 0, 0, 0));
+	Grafica_GCTP.FillRectangle(&Pennello_GCTP_Pos_Distruttore, Asse_X, Aumentatore_GCTPPosY_Distruttore = Aumentatore_GCTPPosY_Distruttore + 20, 10, 20);
+	Aumentatore_GCTPNegY_Distruttore = Aumentatore_GCTPNegY_Distruttore + 20;
+}
+void DisegnaGiocatore_1_NegativeY(HDC Disegnato)
+{
+	Gdiplus::Graphics Grafica_GCTP(Disegnato);
+	Gdiplus::SolidBrush Pennello_GCTP(Gdiplus::Color(255, Colore_R_Giocatore_1, Colore_G_Giocatore_1, Colore_B_Giocatore_1));
+	//Grafica_GCTP.Clear(Gdiplus::Color(255, 0, 0, 0));
+	Grafica_GCTP.FillRectangle(&Pennello_GCTP, Asse_X, Aumentatore_GCTPPosY = Aumentatore_GCTPPosY - 20, 10, 190);
+	Gdiplus::SolidBrush Pennello_GCTP_Neg_Distruttore(Gdiplus::Color(255, 0, 0, 0));
+	Grafica_GCTP.FillRectangle(&Pennello_GCTP_Neg_Distruttore, Asse_X, Aumentatore_GCTPNegY_Distruttore = Aumentatore_GCTPNegY_Distruttore - 20, 10, 20);
+	Aumentatore_GCTPPosY_Distruttore = Aumentatore_GCTPPosY_Distruttore - 20;
+}
+void DisegnaEnvironment(HDC Disegnato)
+{
+	// Disegna L'Environment di gioco:
+	//Y = M&(X) + B;								// Still not gonna use it here.
+	Gdiplus::Graphics Grafica(Disegnato);
+	Gdiplus::Pen Matita_L1(Gdiplus::Color(255, R, G, B), 10);
+	Grafica.DrawLine(&Matita_L1, 
+	// Coordinate della Linea_1 AKA Segmenti.
+		100000,			// Pendenza della Linea, partendo dal PRIMO Segmento.
+		0,				// Inizio PRIMO Segmento.
+		0,				//	Posizione X	 
+		10);			//	Posizione Y
+	Gdiplus::Pen Matita_L2(Gdiplus::Color(255, R, G, B), 10);
+	Grafica.DrawLine(&Matita_L2,
+		// Coordinate della Linea_2 AKA Segmenti.
+		5,				// Pendenza della Linea, partendo dal PRIMO Segmento.
+		500,			// Inizio PRIMO Segmento.
+		5,				//	Posizione X	 
+		10);			//	Posizione Y
+	Gdiplus::Pen Matita_L3(Gdiplus::Color(255, R, G, B), 10);
+	Grafica.DrawLine(&Matita_L3,
+		// Coordinate della Linea_3 AKA Segmenti.
+		2000000,		// Pendenza della Linea, partendo dal PRIMO Segmento.
+		0,				// Inizio PRIMO Segmento.
+		0,				//	Posizione X	 
+		856);			//	Posizione Y
+	Gdiplus::Pen Matita_L4(Gdiplus::Color(255, R, G, B), 10);
+	Grafica.DrawLine(&Matita_L4,
+		// Coordinate della Linea_4 AKA Segmenti.
+		5,				// Pendenza della Linea, partendo dal PRIMO Segmento.
+		1010,			// Inizio PRIMO Segmento.
+		5,				//	Posizione X	 
+		500);			//	Posizione Y
+	Gdiplus::Pen Matita_L5(Gdiplus::Color(255, R, G, B), 10);
+	Grafica.DrawLine(&Matita_L5,
+		// Coordinate della Linea_5 AKA Segmenti.
+		1330,			// Pendenza della Linea, partendo dal PRIMO Segmento.
+		500,			// Inizio PRIMO Segmento.
+		1330,			//	Posizione X	 
+		10);			//	Posizione Y
+	Gdiplus::Pen Matita_L6(Gdiplus::Color(255, R, G, B), 10);
+	Grafica.DrawLine(&Matita_L6,
+		// Coordinate della Linea_6 AKA Segmenti.
+		1330,			// Pendenza della Linea, partendo dal PRIMO Segmento.
+		1010,			// Inizio PRIMO Segmento.
+		1330,			//	Posizione X	 
+		500);			//	Posizione Y
+	Gdiplus::Pen Linea_CENTRALE(Gdiplus::Color(255, Colore_R_LineaCentrale, Colore_G_LineaCentrale, Colore_B_LineaCentrale), 5);
+	Linea_CENTRALE.SetDashStyle(Gdiplus::DashStyleDash);
+	Grafica.DrawLine(&Linea_CENTRALE,
+		// Coordinate della Linea_CENTRALE AKA Segmenti.
+		1350/2,			// Pendenza della Linea, partendo dal PRIMO Segmento.
+		851,			// Inizio PRIMO Segmento.
+		1350/2,			//	Posizione X	 
+		16);			//	Posizione Y
+/*Ricorda che tutti i computer lavorano sul IV Quadrante degli assi cartesiani. 
+Prendi ciò come riferimento per basare le costanti.*/
+}
+LRESULT CALLBACK Finestra_GST(HWND Manipolatore, UINT Messaggi_Windows, WPARAM wParametri, LPARAM lParametri)
+{
+	RegioneRendering_CALLER();
+	switch (Messaggi_Windows)
+	{
+	case WM_COMMAND:
+		if (wParametri == 0)
+		{ 
+			PlaySound(MAKEINTRESOURCE(IDR_WAVE1), GetModuleHandle(0), SND_SYNC | SND_RESOURCE);
+			Domanda_1 = MessageBox(Manipolatore_Finestra, Lingua[1].c_str(), "Ping'n'Pong", MB_YESNOCANCEL | MB_ICONQUESTION);
+			PlaySound(MAKEINTRESOURCE(IDR_WAVE1), GetModuleHandle(0), SND_SYNC | SND_RESOURCE);
+			if (Domanda_1 == IDYES)
+			{
+				exit(int(CHIUSURA_STD));
+			}
+		}
+		else if (wParametri == 9)
+		{
+			//PlaySound(MAKEINTRESOURCE(IDR_WAVE1), GetModuleHandle(0), SND_SYNC | SND_RESOURCE);
+			//Grafica_Colore_BCG.Clear(Gdiplus::Color(255, 0, 0, 0));
+			//InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+
+		}
+		else if (wParametri == 8)
+		{
+			PlaySound(MAKEINTRESOURCE(IDR_WAVE1), GetModuleHandle(0), SND_SYNC | SND_RESOURCE);
+
+			InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+		}
+		else if (wParametri == 7)
+		{
+			PlaySound(MAKEINTRESOURCE(IDR_WAVE1), GetModuleHandle(0), SND_SYNC | SND_RESOURCE);
+			MessageBox(Manipolatore_Finestra, Lingua[13].c_str(), "Ping'n'Pong", MB_OK | MB_ICONINFORMATION);
+			PlaySound(MAKEINTRESOURCE(IDR_WAVE1), GetModuleHandle(0), SND_SYNC | SND_RESOURCE);
+		}
+		else if (wParametri == 3)
+		{
+			PlaySound(MAKEINTRESOURCE(IDR_WAVE1), GetModuleHandle(0), SND_SYNC | SND_RESOURCE);
+			Controllo_Check_ITA = MF_CHECKED;
+			Controllo_Check_ESP = MF_UNCHECKED;
+			Controllo_Check_ENG = MF_UNCHECKED;
+			Lingua_Italiana_CALLER();
+			PingPong_MENU_FUNCTION(Manipolatore_Finestra);
+			DrawMenuBar(Manipolatore_Finestra);
+		}
+		else if (wParametri == 4)
+		{
+			PlaySound(MAKEINTRESOURCE(IDR_WAVE1), GetModuleHandle(0), SND_SYNC | SND_RESOURCE);
+			Controllo_Check_ITA = MF_UNCHECKED;
+			Controllo_Check_ESP = MF_UNCHECKED;
+			Controllo_Check_ENG = MF_CHECKED;
+			Lingua_Inglese_CALLER();
+			PingPong_MENU_FUNCTION(Manipolatore_Finestra);
+			DrawMenuBar(Manipolatore_Finestra);
+			
+		}
+		else if (wParametri == 5)
+		{
+			PlaySound(MAKEINTRESOURCE(IDR_WAVE1), GetModuleHandle(0), SND_SYNC | SND_RESOURCE);
+			Controllo_Check_ITA = MF_UNCHECKED;
+			Controllo_Check_ESP = MF_CHECKED;
+			Controllo_Check_ENG = MF_UNCHECKED;
+			Lingua_Spagnola_CALLER();
+			PingPong_MENU_FUNCTION(Manipolatore_Finestra);
+			DrawMenuBar(Manipolatore_Finestra);
+		}
+		else if (wParametri == 1 )
+		{
+			PlaySound(MAKEINTRESOURCE(IDR_WAVE1), GetModuleHandle(0), SND_SYNC | SND_RESOURCE);
+			MessageBox(Manipolatore_Finestra, Lingua[10].c_str(), "Ping'n'Pong", MB_OK | MB_ICONINFORMATION);
+			PlaySound(MAKEINTRESOURCE(IDR_WAVE1), GetModuleHandle(0), SND_SYNC | SND_RESOURCE);
+		}
+		else if (wParametri == 6)
+		{
+			PlaySound(MAKEINTRESOURCE(IDR_WAVE1), GetModuleHandle(0), SND_SYNC | SND_RESOURCE);
+			// Disegna Giocatore_1:
+			DisegnaGiocatore_1_PositiveY(Disegnato);
+			DisegnaGiocatore_1_NegativeY(Disegnato);
+			// Disegna Giocatore_2:
+			DisegnaGiocatore_2_PositiveY(Disegnato);
+			DisegnaGiocatore_2_NegativeY(Disegnato);
+		}
+		break;
+	case WM_CREATE:
+		PingPong_MENU_FUNCTION(Manipolatore);
+		break;
+	case WM_PAINT:
+		Disegnato = BeginPaint(Manipolatore_Finestra, &Disegnante);
+		// Disegna L'Environment:
+		DisegnaEnvironment(Disegnato);
+		break;
+	case WM_MOUSEMOVE:
+		
+	//	PlaySound(MAKEINTRESOURCE(IDR_WAVE1), GetModuleHandle(0), SND_SYNC | SND_RESOURCE);
+
+		break;
+	case WM_KEYDOWN:
+		if (wParametri == 'A')
+		{			
+			DisegnaGiocatore_1_PositiveY(Disegnato);
+			if (Aumentatore_GCTPPosY >= Asse_Y_Limite_Positivo)
+			{
+				Aumentatore_GCTPPosY = 625;
+			}
+			if (Aumentatore_GCTPPosY_Distruttore >= Asse_Y_Distruttore_Limite_Positivo)
+			{
+				Aumentatore_GCTPPosY_Distruttore = 590;
+			}
+			if (Aumentatore_GCTPNegY_Distruttore >= 835)
+			{
+				Aumentatore_GCTPNegY_Distruttore = 835;
+			}
+		}
+		else if (wParametri == 'F')
+		{
+			Colore_R_LineaCentrale = 255;
+			Colore_G_LineaCentrale = 0;
+			Colore_B_LineaCentrale = 0;
+			InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+		}
+		else if (wParametri == 'G')
+		{
+			Colore_R_LineaCentrale = 0;
+			Colore_G_LineaCentrale = 0;
+			Colore_B_LineaCentrale = 255;
+			InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+		}
+		else if (wParametri == 'L')
+		{
+			Colore_R_LineaCentrale = 255;
+			Colore_G_LineaCentrale = 255;
+			Colore_B_LineaCentrale = 255;
+			InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+		}
+		else if (wParametri == 'I')
+		{
+			Colore_R_LineaCentrale = 0;
+			Colore_G_LineaCentrale = 0;
+			Colore_B_LineaCentrale = 0;
+			InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+		}
+		else if (wParametri == 'K')
+		{
+			Colore_R_LineaCentrale = 255;
+			Colore_G_LineaCentrale = 150;
+			Colore_B_LineaCentrale = 0;
+			InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+		}
+		else if (wParametri == 'J')
+		{
+			Colore_R_LineaCentrale = 255;
+			Colore_G_LineaCentrale = 255;
+			Colore_B_LineaCentrale = 0;
+			InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+		}
+		else if (wParametri == 'H')
+		{
+			Colore_R_LineaCentrale = 0;
+			Colore_G_LineaCentrale = 255;
+			Colore_B_LineaCentrale = 0;
+			InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+		}
+		else if (wParametri == 'Q')
+		{
+			Colore_R_Giocatore_1 = 255;
+			Colore_G_Giocatore_1 = 0;
+			Colore_B_Giocatore_1 = 0;
+			DisegnaGiocatore_1_PositiveY(Disegnato);
+			DisegnaGiocatore_1_NegativeY(Disegnato);
+			InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+		}
+		else if (wParametri == 'W')
+		{
+			Colore_R_Giocatore_1 = 0;
+			Colore_G_Giocatore_1 = 0;
+			Colore_B_Giocatore_1 = 255;
+			DisegnaGiocatore_1_PositiveY(Disegnato);
+			DisegnaGiocatore_1_NegativeY(Disegnato);
+			InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+		}
+		else if (wParametri == 'E')
+		{
+			Colore_R_Giocatore_1 = 0;
+			Colore_G_Giocatore_1 = 255;
+			Colore_B_Giocatore_1 = 0;
+			DisegnaGiocatore_1_PositiveY(Disegnato);
+			DisegnaGiocatore_1_NegativeY(Disegnato);
+			InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+		}
+		else if (wParametri == 'R')
+		{
+			Colore_R_Giocatore_1 = 255;
+			Colore_G_Giocatore_1 = 255;
+			Colore_B_Giocatore_1 = 0;
+			DisegnaGiocatore_1_PositiveY(Disegnato);
+			DisegnaGiocatore_1_NegativeY(Disegnato);
+			InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+		}
+		else if (wParametri == 'T')
+		{
+			Colore_R_Giocatore_1 = 255;
+			Colore_G_Giocatore_1 = 150;
+			Colore_B_Giocatore_1 = 0;
+			DisegnaGiocatore_1_PositiveY(Disegnato);
+			DisegnaGiocatore_1_NegativeY(Disegnato);
+			InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+		}
+		else if (wParametri == 'M')
+		{
+			if (Colore_R_Giocatore_2 == 0 && Colore_G_Giocatore_2 == 0 && Colore_B_Giocatore_2 == 0)
+			{
+				//	PlaySound("Audio/HOVER_SoundEffect.wav", NULL, SND_FILENAME | SND_NODEFAULT);
+			}
+			else
+			{
+				Domanda_1 = MessageBox(Manipolatore_Finestra, Lingua[16].c_str(), "Ping'n'Pong", MB_YESNOCANCEL | MB_ICONWARNING);
+				if (Domanda_1 == IDYES)
+				{
+					PlaySound(MAKEINTRESOURCE(IDR_WAVE1), GetModuleHandle(0), SND_SYNC | SND_RESOURCE);
+					Colore_R_Giocatore_2 = 0;
+					Colore_G_Giocatore_2 = 0;
+					Colore_B_Giocatore_2 = 0;
+					DisegnaGiocatore_2_PositiveY(Disegnato);
+					DisegnaGiocatore_2_NegativeY(Disegnato);
+					InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+				}
+				else
+				{
+					PlaySound(MAKEINTRESOURCE(IDR_WAVE1), GetModuleHandle(0), SND_SYNC | SND_RESOURCE);
+				}
+			}
+		}
+		else if (wParametri == 'N')
+		{
+			Colore_R_Giocatore_2 = 255;
+			Colore_G_Giocatore_2 = 255;
+			Colore_B_Giocatore_2 = 255;
+			DisegnaGiocatore_2_PositiveY(Disegnato);
+			DisegnaGiocatore_2_NegativeY(Disegnato);
+			InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+		}
+		else if (wParametri == 'B')
+		{
+			Colore_R_Giocatore_2 = 255;
+			Colore_G_Giocatore_2 = 150;
+			Colore_B_Giocatore_2 = 0;
+			DisegnaGiocatore_2_PositiveY(Disegnato);
+			DisegnaGiocatore_2_NegativeY(Disegnato);
+			InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+		}
+		else if (wParametri == 'V')
+		{
+			Colore_R_Giocatore_2 = 255;
+			Colore_G_Giocatore_2 = 255;
+			Colore_B_Giocatore_2 = 0;
+			DisegnaGiocatore_2_PositiveY(Disegnato);
+			DisegnaGiocatore_2_NegativeY(Disegnato);
+			InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+		}
+		else if (wParametri == 'C')
+		{
+			Colore_R_Giocatore_2 = 0;
+			Colore_G_Giocatore_2 = 255;
+			Colore_B_Giocatore_2 = 0;
+			DisegnaGiocatore_2_PositiveY(Disegnato);
+			DisegnaGiocatore_2_NegativeY(Disegnato);
+			InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+		}		
+		else if (wParametri == 'X')
+		{
+			Colore_R_Giocatore_2 = 0;
+			Colore_G_Giocatore_2 = 0;
+			Colore_B_Giocatore_2 = 255;
+			DisegnaGiocatore_2_PositiveY(Disegnato);
+			DisegnaGiocatore_2_NegativeY(Disegnato);
+			InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+		}
+		else if (wParametri == 'Z')
+		{
+			Colore_R_Giocatore_2 = 255;
+			Colore_G_Giocatore_2 = 0;
+			Colore_B_Giocatore_2 = 0;
+			DisegnaGiocatore_2_PositiveY(Disegnato);
+			DisegnaGiocatore_2_NegativeY(Disegnato);
+			InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+		}
+		else if (wParametri == 'Y')
+		{
+			Colore_R_Giocatore_1 = 255;
+			Colore_G_Giocatore_1 = 255;
+			Colore_B_Giocatore_1 = 255;
+			DisegnaGiocatore_1_PositiveY(Disegnato);
+			DisegnaGiocatore_1_NegativeY(Disegnato);
+			InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+		}
+		else if (wParametri == 'U')
+		{
+			if (Colore_R_Giocatore_1 == 0 && Colore_G_Giocatore_1 == 0 && Colore_R_Giocatore_1 == 0)
+			{
+			
+			}
+			else
+			{
+				Domanda_1 = MessageBox(Manipolatore_Finestra, Lingua[15].c_str(), "Ping'n'Pong", MB_YESNOCANCEL | MB_ICONWARNING);
+				if (Domanda_1 == IDYES)
+				{
+					PlaySound(MAKEINTRESOURCE(IDR_WAVE1), GetModuleHandle(0), SND_SYNC | SND_RESOURCE);
+					Colore_R_Giocatore_1 = 0;
+					Colore_G_Giocatore_1 = 0;
+					Colore_B_Giocatore_1 = 0;
+					DisegnaGiocatore_1_PositiveY(Disegnato);
+					DisegnaGiocatore_1_NegativeY(Disegnato);
+					InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+
+				}
+				else
+				{
+					PlaySound(MAKEINTRESOURCE(IDR_WAVE1), GetModuleHandle(0), SND_SYNC | SND_RESOURCE);
+				}
+			}
+		}
+		else if (wParametri == '1')
+		{
+			R = 255;
+			G = 0;
+			B = 0;
+			InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+		}
+		else if (wParametri == '2')
+		{
+			R = 0;
+			G = 0;
+			B = 255;
+			InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+		}
+		else if (wParametri == '3')
+		{
+			R = 0;
+			G = 255;
+			B = 0;
+			InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+		}
+		else if (wParametri == '4')
+		{
+			R = 255;
+			G = 255;
+			B = 0;
+			InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+		}
+		else if (wParametri == '5')
+		{
+			R = 255;
+			G = 150;
+			B = 0;
+			InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+		}
+		else if (wParametri == '6')
+		{
+			R = 255;
+			G = 255;
+			B = 255;
+			InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+		}
+		else if (wParametri == '7')
+		{
+			R = 0;
+			G = 0;
+			B = 0;
+			InvalidateRect(Manipolatore_Finestra, NULL, FALSE);
+		}
+		else if(wParametri == 'D')
+		{
+			DisegnaGiocatore_1_NegativeY(Disegnato);
+			if (Aumentatore_GCTPPosY <= Asse_Y_Limite_Negativo)
+			{
+				Aumentatore_GCTPPosY = 50;
+			}
+			if (Aumentatore_GCTPNegY_Distruttore <= Asse_Y_Distruttore_Limite_Negativo)
+			{
+				Aumentatore_GCTPNegY_Distruttore = 260;			
+			}
+			if (Aumentatore_GCTPPosY_Distruttore <= 0)
+			{
+				Aumentatore_GCTPPosY_Distruttore = 0;
+			}
+		}
+		else if (wParametri == VK_LEFT)
+		{
+			DisegnaGiocatore_2_PositiveY(Disegnato);
+			if (Aumentatore_GCTSPosY >= Asse_Y_Limite_Positivo)
+			{
+				Aumentatore_GCTSPosY = 625;
+			}
+			if (Aumentatore_GCTSPosY_Distruttore >= Asse_Y_Distruttore_Limite_Positivo)
+			{
+				Aumentatore_GCTSPosY_Distruttore = 590;
+			}
+			if (Aumentatore_GCTSNegY_Distruttore >= 835)
+			{
+				Aumentatore_GCTSNegY_Distruttore = 835;
+			}
+		}
+		else if (wParametri == VK_RIGHT)
+		{
+			DisegnaGiocatore_2_NegativeY(Disegnato);
+			if (Aumentatore_GCTSPosY <= Asse_Y_Limite_Negativo)
+			{
+				Aumentatore_GCTSPosY = 50;
+			}
+			if (Aumentatore_GCTSNegY_Distruttore <= Asse_Y_Distruttore_Limite_Negativo)
+			{
+				Aumentatore_GCTSNegY_Distruttore = 260;
+			}
+			if (Aumentatore_GCTSPosY_Distruttore <= 0)
+			{
+				Aumentatore_GCTSPosY_Distruttore = 0;
+			}
+		}
+		break;
+	case WM_CLOSE:
+		Domanda_1 = MessageBox(Manipolatore_Finestra, Lingua[1].c_str(), "Ping'n'Pong", MB_YESNOCANCEL | MB_ICONINFORMATION);
+		if (Domanda_1 == IDYES)
+		{
+			DestroyWindow(Manipolatore);
+			exit(CHIUSURA_STD);
+			break;
+		}
+		break;
+	case WM_DESTROY:
+		MessageBox(Manipolatore_Finestra, Lingua[2].c_str(), "Ping'n'Pong", MB_OK | MB_ICONINFORMATION);
+		PostQuitMessage(CHIUSURA_GRAZIE);
+		exit(CHIUSURA_GRAZIE);
+		break;
+	default:
+		return DefWindowProc(Manipolatore, Messaggi_Windows, wParametri, lParametri);
+	}	
+}
+int WINAPI CALLBACK WinMain(HINSTANCE Instanza_Attuale, HINSTANCE Instanza_Precedente, PSTR CmdLine, int ShowCmd)
+{
+	// Chiamata Lingua Inglese:			 | Procedura Standard
+	
+	Lingua_Inglese_CALLER();
+	Controllo_Check_ENG = MF_CHECKED;
+	
+	// Inizializzazione della GDI:
+	
+	Gdiplus::GdiplusStartup(&GDI_PingPongSpinner, &GDI_PingPong, NULL);
+	
+	// Inizializzazione della Classe di Windows.h:
+	
+	W_C.cbSize = sizeof(WNDCLASSEX);
+	W_C.cbClsExtra = NULL;
+	W_C.cbWndExtra = NULL;
+	W_C.hInstance = Instanza_Attuale;
+	W_C.lpszMenuName = NULL;
+	W_C.style = CS_HREDRAW | CS_VREDRAW;
+	W_C.hIconSm = static_cast<HICON>(LoadImage(Instanza_Attuale, MAKEINTRESOURCE(IDI_ICON1), IMAGE_ICON, 64, 64, 0));
+	W_C.hCursor = LoadCursor(NULL, IDC_ARROW);
+	W_C.hIcon = static_cast<HICON>(LoadImage(Instanza_Attuale, MAKEINTRESOURCE(IDI_ICON1), IMAGE_ICON, 128, 128, 0));;
+	W_C.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
+	W_C.lpszClassName = Finestra_H;
+	W_C.lpfnWndProc = Finestra_GST;
+
+	// Registrazione della Classe:
+
+	RegisterClassEx(&W_C);
+
+	// Creazione della Finstra:
+
+	Manipolatore_Finestra = CreateWindowEx
+	(NULL, Finestra_H, "Ping'n'Pong",												// Nome della Classe + Titolo della Finestra
+	WS_OVERLAPPED | WS_VISIBLE | WS_CAPTION | WS_MINIMIZEBOX| WS_SYSMENU,			// Sovrapposizione della finestra + mostra sul Task Manager
+	CW_USEDEFAULT, CW_USEDEFAULT,													// Posizione della finestra alla sua creazione. Tutti i Computer Lavorano sul IV Quadrante degli assi Cartesiani. Dove l'origine si trova in alto a sinistra dello schermo.
+	1350, 920, NULL, NULL, Instanza_Attuale, NULL);									// Larghezza + Lunghezza della Finestra
+		
+	// Casistica:
+
+	if (Manipolatore_Finestra == 0)
+	{
+		MessageBox(Manipolatore_Finestra, Lingua[0].c_str(), "Ping'n'Pong Game", MB_OK | MB_ICONEXCLAMATION);
+		PlaySound(MAKEINTRESOURCE(IDR_WAVE1), GetModuleHandle(0), SND_SYNC | SND_RESOURCE);
+		exit(int(ERRORE_FINESTRA));
+	}
+																		
+	// Loop della Finestra:
+
+	MSG Messaggi_Windows{};
+	while (GetMessage(&Messaggi_Windows, 0, 0, 0))
+	{
+		TranslateMessage(&Messaggi_Windows);
+		DispatchMessage(&Messaggi_Windows);
+	}
+	return 0;
+}
